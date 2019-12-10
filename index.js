@@ -1,4 +1,6 @@
 import * as PIXI from 'pixi.js';
+import {Quadro} from "./quadro";
+
 
 let type = "WebGL";
 if(!PIXI.utils.isWebGLSupported()){
@@ -20,7 +22,8 @@ let app = new PIXI.Application({
 document.body.appendChild(app.view);
 
 app.loader
-    .add("kakash", "https://psv4.userapi.com/c856232/u318554322/docs/d15/df10ba7598b4/graffiti.png")
+    .add("quadr", "https://cdn1.iconfinder.com/data/icons/gadgets-electronics-and-hardware-1/24/_drone-128.png")
+    // .add("quadr", "https://c7.hotpng.com/preview/753/423/691/brown-rat-rodent-rats-and-mice-mouse-squirrel-mouse-thumbnail.jpg")
     .on("progress", loadProgressHandler)
     .load(setup);
 
@@ -37,41 +40,20 @@ function loadProgressHandler(loader, resource) {
     //console.log("loading: " + resource.name);
 }
 
-let ka1, ka2;
 let state;
 let fixedObjects = [],
-    mobileObjects = [];
+    quadros = [
+        new Quadro(90, 90, 0.2, 0),
+        new Quadro(500, 90),
+    ];
 
 //This `setup` function will run when the image has loaded
 function setup(loader, resources) {
 
-    //Create the cat sprite
-    ka1 = new PIXI.Sprite(resources["kakash"].texture);
-    ka2 = new PIXI.Sprite(resources["kakash"].texture);
-
-
-    ka1.x = 40;
-    ka1.y = 10;
-
-    ka2.x = 120;
-    ka2.y = 10;
-
-    // ka2.rotation = 0.5;
-    //
-    ka1.anchor.x = 0.1;
-    ka1.anchor.y = 0.1;
-
-    ka1.rotation = 0.5;
-
-    ka2.vx = 1;
-
-    let scale = 0.16;
-    ka1.scale.set(scale, scale);
-    ka2.scale.set(scale, scale);
-
-    //Add the cat to the stage
-    app.stage.addChild(ka1);
-    app.stage.addChild(ka2);
+    quadros.forEach(quad => {
+        quad.initQuadro(new PIXI.Sprite(resources["quadr"].texture));
+        app.stage.addChild(quad.getPixiObject());
+    });
 
     app.renderer.render(app.stage);
 
@@ -88,5 +70,5 @@ function gameLoop(delta){
 function play(delta) {
 
     //Move the cat 1 pixel to the right each frame
-    ka2.x += ka2.vx;
+    quadros.forEach(quad => quad.move());
 }

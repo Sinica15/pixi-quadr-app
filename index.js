@@ -54,30 +54,18 @@ function setup(loader, resources) {
 
     quadros.forEach(quad => {
         quad.initQuadro(new PIXI.Sprite(resources["quadr"].texture));
+        app.stage.addChild(quad.getDirectionVector());
         app.stage.addChild(quad.getPixiObject());
     });
 
-    quadros[0].setTargetPosition(400, 100);
-    quadros[1].setTargetPosition(600, 100);
-    quadros[2].setTargetPosition(300, 300);
-    quadros[3].setTargetPosition(100, 300);
+    // drawLine(0, 0, 200, 3);
 
-    // let line = new PIXI.Graphics();
-    // line.lineStyle(4, 0xFF0000, 1);
-    //
-    // line.moveTo(0, 0);
-    // line.lineTo(80, 50);
-    // line.x = 32;
-    // line.y = 32;
-    // app.stage.addChild(line);
-    //
-    // line.moveTo(100, 20);
-    // line.lineTo(80, 50);
-    // line.x = 100;
-    // line.y = 100;
-    // app.stage.addChild(line);
+    quadros[0].setTargetPosition(300, 100);
+    quadros[1].setTargetPosition(700, 100);
+    quadros[2].setTargetPosition(400, 300);
+    quadros[3].setTargetPosition(0, 300);
 
-    app.renderer.render(app.stage);
+    // app.renderer.render(app.stage);
 
     state = play;
     app.ticker.add(delta => gameLoop(delta));
@@ -97,6 +85,18 @@ function play(delta) {
 
 function stop() {
 
+}
+
+export function drawLine(x, y, length, angle) {
+    let line = new PIXI.Graphics();
+    line.lineStyle(2, 0xFF0000, 1);
+    angle -= Math.PI/2;
+    line.moveTo(x, y);
+    let endCord = {x: x + length * Math.cos(angle), y: y + length * Math.sin(angle)};
+    line.lineTo(endCord.x, endCord.y);
+    line.x = 200;
+    line.y = 0;
+    app.stage.addChild(line);
 }
 
 let el = document.createElement("input");

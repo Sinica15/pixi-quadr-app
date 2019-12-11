@@ -43,8 +43,8 @@ function loadProgressHandler(loader, resource) {
 let state;
 let fixedObjects = [],
     quadros = [
-        new Quadro("1a", 500, 200),
-        new Quadro("2a", 500, 200),
+        new Quadro("1a", 300, 100),
+        new Quadro("2a", 700, 100),
         new Quadro("3a", 200, 200),
         new Quadro("4a", 200, 200),
     ];
@@ -54,14 +54,15 @@ function setup(loader, resources) {
 
     quadros.forEach(quad => {
         quad.initQuadro(new PIXI.Sprite(resources["quadr"].texture));
+        app.stage.addChild(quad.getLabelText());
         app.stage.addChild(quad.getDirectionVector());
         app.stage.addChild(quad.getPixiObject());
     });
 
     // drawLine(0, 0, 200, 3);
 
-    quadros[0].setTargetPosition(300, 100);
-    quadros[1].setTargetPosition(700, 100);
+    quadros[0].setTargetPosition(400, 400);
+    quadros[1].setTargetPosition(800, 200);
     quadros[2].setTargetPosition(400, 300);
     quadros[3].setTargetPosition(0, 300);
 
@@ -72,31 +73,15 @@ function setup(loader, resources) {
 }
 
 function gameLoop(delta){
-
-    //Update the current game state:
     state(delta);
 }
 
 function play(delta) {
-
-    //Move the cat 1 pixel to the right each frame
     quadros.forEach(quad => quad.move());
 }
 
 function stop() {
 
-}
-
-export function drawLine(x, y, length, angle) {
-    let line = new PIXI.Graphics();
-    line.lineStyle(2, 0xFF0000, 1);
-    angle -= Math.PI/2;
-    line.moveTo(x, y);
-    let endCord = {x: x + length * Math.cos(angle), y: y + length * Math.sin(angle)};
-    line.lineTo(endCord.x, endCord.y);
-    line.x = 200;
-    line.y = 0;
-    app.stage.addChild(line);
 }
 
 let el = document.createElement("input");

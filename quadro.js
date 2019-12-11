@@ -11,6 +11,13 @@ export function Quadro(id, x, y, vx, vy) {
     this.speedCoef = 0.1;
     this.safeRadiaus = 45;
     this.directionVector = new PIXI.Graphics();
+    this.labelText = new PIXI.Text(this.id_name, {
+        fontFamily: "Arial",
+        fontSize: 30,
+        fill: "green",
+        stroke: '#ffffff',
+        strokeThickness: 5
+    });
 }
 
 Quadro.prototype.initQuadro = function (pixiObj) {
@@ -39,6 +46,14 @@ Quadro.prototype.getDirectionVector = function () {
     return this.directionVector;
 };
 
+Quadro.prototype.getLabelText = function() {
+    this.labelText.x = this.initPosition.x;
+    this.labelText.y = this.initPosition.y;
+    this.labelText.anchor.set(0.5, 0.5);
+    this.labelText.scale.set(this.initScale, this.initScale);
+    return this.labelText;
+};
+
 Quadro.prototype.setTargetPosition = function (x, y) {
     this.targetPosition = {x, y};
 };
@@ -62,7 +77,11 @@ Quadro.prototype.move = function () {
         this.directionVector.rotation = bodyRotationAngle + correctionAngle;
     }
 
-    console.log(this.id_name, this.bodyQuadro.rotation, this.directionVector.rotation);
+    this.labelText.x = this.bodyQuadro.x;
+    this.labelText.y = this.bodyQuadro.y - 55;
+    this.labelText.text = `${this.id_name} ${this.bodyQuadro.x.toFixed()} ${this.bodyQuadro.y.toFixed()}`;
+
+    // console.log(this.id_name, this.bodyQuadro.rotation, this.directionVector.rotation);
 
     // console.log(
     //     this.id_name,

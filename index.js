@@ -12,7 +12,7 @@ PIXI.utils.sayHello(type);
 //Create a Pixi Application
 let app = new PIXI.Application({
     width: 800,         // default: 800
-    height: 256,        // default: 600
+    height: 350,        // default: 600
     antialias: true,    // default: false
     transparent: true, // default: false
     resolution: 1       // default: 1
@@ -43,8 +43,10 @@ function loadProgressHandler(loader, resource) {
 let state;
 let fixedObjects = [],
     quadros = [
-        new Quadro(90, 90, 0.2, 0),
-        new Quadro(500, 90),
+        new Quadro("1a", 500, 200),
+        new Quadro("2a", 500, 200),
+        new Quadro("3a", 200, 200),
+        new Quadro("4a", 200, 200),
     ];
 
 //This `setup` function will run when the image has loaded
@@ -54,6 +56,26 @@ function setup(loader, resources) {
         quad.initQuadro(new PIXI.Sprite(resources["quadr"].texture));
         app.stage.addChild(quad.getPixiObject());
     });
+
+    quadros[0].setTargetPosition(400, 100);
+    quadros[1].setTargetPosition(600, 100);
+    quadros[2].setTargetPosition(300, 300);
+    quadros[3].setTargetPosition(100, 300);
+
+    // let line = new PIXI.Graphics();
+    // line.lineStyle(4, 0xFF0000, 1);
+    //
+    // line.moveTo(0, 0);
+    // line.lineTo(80, 50);
+    // line.x = 32;
+    // line.y = 32;
+    // app.stage.addChild(line);
+    //
+    // line.moveTo(100, 20);
+    // line.lineTo(80, 50);
+    // line.x = 100;
+    // line.y = 100;
+    // app.stage.addChild(line);
 
     app.renderer.render(app.stage);
 
@@ -72,3 +94,19 @@ function play(delta) {
     //Move the cat 1 pixel to the right each frame
     quadros.forEach(quad => quad.move());
 }
+
+function stop() {
+
+}
+
+let el = document.createElement("input");
+el.type = "checkbox";
+el.id = "check_stop";
+el.addEventListener("click",function() {
+    if (this.checked) {
+        state = stop;
+    }else {
+        state = play;
+    }
+});
+document.body.appendChild(el);

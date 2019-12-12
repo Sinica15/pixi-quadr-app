@@ -42,29 +42,51 @@ function loadProgressHandler(loader, resource) {
 
 let state;
 let fixedObjects = [],
-    quadros = [
-        new Quadro("1a", 300, 100),
-        new Quadro("2a", 700, 100),
-        new Quadro("3a", 200, 200),
-        new Quadro("4a", 200, 200),
-    ];
+    quadros = [];
+
+let scenario = 3;
+switch (scenario) {
+    case 1:
+        quadros = [
+            new Quadro("1a", 300, 100),
+            new Quadro("2a", 700, 100),
+            new Quadro("3a", 200, 200),
+            new Quadro("4a", 200, 200)
+        ];
+        quadros[0].setTargetPosition(400, 400);
+        quadros[1].setTargetPosition(800, 200);
+        quadros[2].setTargetPosition(400, 300);
+        quadros[3].setTargetPosition(0, 300);
+        break;
+    case 2:
+        quadros = [
+            new Quadro("1a", 200, 200),
+            new Quadro("2a", 220, 100),
+            new Quadro("3a", 370, 170)
+        ];
+        quadros[0].setTargetPosition(490, 200);
+        quadros[1].setTargetPosition(490, 100);
+        break;
+    case 3:
+        quadros = [
+            new Quadro("1a", 200, 200),
+            new Quadro("2a", 220, 100),
+            new Quadro("3a", 370, 170)
+        ];
+        quadros[0].setTargetPosition(490, 200);
+        quadros[1].setTargetPosition(250, 300);
+        break;
+}
 
 //This `setup` function will run when the image has loaded
 function setup(loader, resources) {
 
     quadros.forEach(quad => {
-        quad.initQuadro(new PIXI.Sprite(resources["quadr"].texture));
-        app.stage.addChild(quad.getLabelText());
-        app.stage.addChild(quad.getDirectionVector());
-        app.stage.addChild(quad.getPixiObject());
+        quad.initQuadro(new PIXI.Sprite(resources["quadr"].texture), quadros);
+        app.stage.addChild(...quad.getPixiObjects());
     });
 
     // drawLine(0, 0, 200, 3);
-
-    quadros[0].setTargetPosition(400, 400);
-    quadros[1].setTargetPosition(800, 200);
-    quadros[2].setTargetPosition(400, 300);
-    quadros[3].setTargetPosition(0, 300);
 
     // app.renderer.render(app.stage);
 

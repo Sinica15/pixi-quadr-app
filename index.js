@@ -44,19 +44,20 @@ let state;
 let fixedObjects = [],
     quadros = [];
 
-let scenario = 3;
+let scenario = 4;
 switch (scenario) {
     case 1:
         quadros = [
-            new Quadro("1a", 300, 100),
-            new Quadro("2a", 700, 100),
-            new Quadro("3a", 200, 200),
-            new Quadro("4a", 200, 200)
+            new Quadro("1a", 500, 100),
+            new Quadro("2a", 500, 200),
+            new Quadro("3a", 150, 150),
+            // new Quadro("4a", 200, 200)
         ];
-        quadros[0].setTargetPosition(400, 400);
-        quadros[1].setTargetPosition(800, 200);
-        quadros[2].setTargetPosition(400, 300);
-        quadros[3].setTargetPosition(0, 300);
+        // quadros[0].setTargetPosition(400, 400);
+        // quadros[1].setTargetPosition(800, 200);
+        quadros[2].setTargetPosition(700, 150);
+        quadros[2].setTaskForNotification("123");
+        // quadros[3].setTargetPosition(0, 300);
         break;
     case 2:
         quadros = [
@@ -75,6 +76,23 @@ switch (scenario) {
         ];
         quadros[0].setTargetPosition(490, 200);
         quadros[1].setTargetPosition(250, 300);
+        break;
+    case 4:
+        //normal working scale 0.2
+        quadros = [
+            new Quadro("1a", 50, 50, 0.2),
+            new Quadro("2a", 50, 110, 0.2),
+            new Quadro("3a", 50, 170, 0.2),
+            new Quadro("4a", 50, 230, 0.2),
+            new Quadro("5a", 50, 290, 0.2),
+            new Quadro("6a", 140, 50, 0.2),
+            new Quadro("7a", 140, 110, 0.2),
+            new Quadro("8a", 140, 170, 0.2),
+            new Quadro("9a", 140, 230, 0.2),
+            new Quadro("10a", 140, 290, 0.2)
+        ];
+        // quadros.forEach(q => q.setTargetPosition(490, 200));
+        // quadros[2].someCommand();
         break;
 }
 
@@ -99,7 +117,7 @@ function gameLoop(delta){
 }
 
 function play(delta) {
-    quadros.forEach(quad => quad.move());
+    quadros.forEach(quad => quad.doStep());
 }
 
 function stop() {

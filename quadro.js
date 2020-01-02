@@ -1,9 +1,20 @@
 import * as PIXI from "pixi.js";
 import * as sha256 from "js-sha256";
 
-export function Quadro(id, x, y, initialScale,vx, vy) {
+function deepCopy(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+
+export function Quadro(id, x, y, initialScale, vx, vy) {
+    this.selfTime = 0;
+    this.timers = {
+        neighboursTimer: 1000,
+        commonTimer: 0,
+    };
+
     this.id_name = id;
     this.initPosition = {x, y};
+    this.stuckLocation = {};
     this.initScale = initialScale || 0.5;
 
     this.vx = vx || 0;
@@ -14,12 +25,22 @@ export function Quadro(id, x, y, initialScale,vx, vy) {
     this.maxSpeed = 13;
     this.speedCoef = 0.1;
 
-    this.safeRadius = 90 * this.initScale;
+    this.safeRadius = 90 * this.initScale + 10;
     this.nearRadius = 600 * this.initScale;
     this.quadroSwarm = [];
     this.neighbours = [];
 
-    this.notificatios = [];
+    /*
+    * Tasks in JSON object
+    * */
+    this.currentTasks = [];
+    /*
+    * Tasks in JSON object
+    * */
+    this.completedTasks = [];
+    /*
+    * Row task in string, can parsed in JSON object
+    * */
     this.taskForNotification = null;
 
     this.directionVector = new PIXI.Graphics();
@@ -67,6 +88,10 @@ Quadro.prototype.getPixiObjects = function () {
     return [this.labelText, this.directionVector, this.bodyQuadro];
 };
 
+Quadro.prototype.getCurrentPosition = function() {
+    return {x: this.bodyQuadro.x, y: this.bodyQuadro.y }
+};
+
 Quadro.prototype.setTargetPosition = function (x, y) {
     this.targetPosition = {x, y};
 };
@@ -87,35 +112,69 @@ Quadro.prototype._notifyNeighbours = function () {
     if (!this.taskForNotification) {
         return 0;
     }
-    this._incomingNotification(this.taskForNotification);
-    // let notificationFlag = false;
     this.neighbours.forEach(neig => {
-        if (!(sha256(JSON.stringify(neig.notificatios)) === sha256(JSON.stringify(this.notificatios)))) {
+        if (!neig._haveThisTask(sha256(this.taskForNotification))) {
             neig.setTaskForNotification(this.taskForNotification);
         }
     });
     this.taskForNotification = null;
 };
 
-Quadro.prototype._incomingNotification = function(notification) {
-    /*
-    * something do
-    * */
-    this.notificatios.push(notification);
+Quadro.prototype.setTaskForNotification = function(task) {
+    this.currentTasks.push(JSON.parse(task));
+    this.taskForNotification = task;
 };
 
-Quadro.prototype.setTaskForNotification = function(task) {
-    this.taskForNotification = task;
+Quadro.prototype._haveThisTask = function(task_hash) {
+    let have = false;
+    this.completedTasks.forEach(task => {
+        if (sha256(JSON.stringify(task)) == task_hash) have = true;
+    });
+    if (have) return have;
+    this.currentTasks.forEach(task => {
+        if (sha256(JSON.stringify(task)) == task_hash) have = true;
+    });
+    return have;
+};
+
+Quadro.prototype._doTasks = function() {
+    this.currentTasks.forEach(task => {
+        switch (task.action) {
+            case "move":
+                this.setTargetPosition(task.to.x, task.to.y);
+                break;
+            case "f":
+                console.log(this.id_name + " pay respect");
+                break;
+            default:
+                /*
+                * Do nothing
+                * */
+        }
+        this.completedTasks.push(task);
+    });
+    this.currentTasks = [];
 };
 
 /*
 * Life/Movement cycle
 * */
+Quadro.prototype._timeIsRunning = function() {
+    this.selfTime++;
+    Object.keys(this.timers).forEach(key => {
+        if (this.timers[key]) this.timers[key]--;
+    })
+};
+
+Quadro.prototype.setCommonTimer = function(time) {
+    this.timers.commonTimer = time;
+};
 
 Quadro.prototype.doStep = function () {
-    // console.log('moved!');
 
+    this._timeIsRunning();
     this._checkNeighbours();
+    this._doTasks();
     this._notifyNeighbours();
     this._velocityCorrection();
 
@@ -139,7 +198,8 @@ Quadro.prototype.doStep = function () {
                         this.bodyQuadro.x.toFixed() + " " +
                         this.bodyQuadro.y.toFixed() + " " +
                         this.neighbours.length +  " " +
-                        this.notificatios[0];
+                        // this.completedTasks[0]
+        ((this.vx == 0 && this.vy == 0) ? "S" : "M");
     this.labelText.text = labelString;
 
     // console.log(this.id_name, this.bodyQuadro.rotation, this.directionVector.rotation);
@@ -176,7 +236,7 @@ Quadro.prototype.distanceTo = function (x, y) {
     );
 };
 
-Quadro.prototype._distanceBetween = function distanceBetween(x1, y1, x2, y2) {
+Quadro.prototype._distanceBetween = function(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 };
 
@@ -208,13 +268,35 @@ Quadro.prototype._velocityCorrection = function () {
     this.vx = newVx;
     this.vy = newVy;
 
-    if (this.distanceTo(this.targetPosition) < 3) {
+    if (this.distanceTo(this.targetPosition) < 7 || neighboursTimer()) {
         this.targetPosition = null;
         this.vx = 0;
         this.vy = 0;
     }
 
     // this.setVelocity(newVx, newVy);
+    function neighboursTimer() {
+        let stuckCoef = 1.45;
+        let speedCoef = 1.3;
+        let neigTime  = 360;
+        let checkCloseNeig = 0;
+        self.neighbours.forEach(neig => {
+            if (self.distanceTo(neig.getCurrentPosition()) < (self.safeRadius + neig.safeRadius) * stuckCoef) {
+                checkCloseNeig++;
+            }
+        });
+        if (self.distanceTo(self.stuckLocation) < (self.maxSpeed * speedCoef)) {
+            if (checkCloseNeig >= 3) {
+                if (self.timers.neighboursTimer == 0) return true;
+            } else {
+                self.timers.neighboursTimer = neigTime;
+            }
+        } else {
+            self.stuckLocation = self.getCurrentPosition();
+        }
+
+
+    }
 
     function aTnToPoint(x, y) {
         if (typeof x == "object") {y = x.y; x = x.x;}

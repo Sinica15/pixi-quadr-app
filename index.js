@@ -1,10 +1,11 @@
 import * as PIXI from 'pixi.js';
 import {Quadro} from "./quadro";
 
+// import "./plot";
 
 let type = "WebGL";
-if(!PIXI.utils.isWebGLSupported()){
-  type = "canvas"
+if (!PIXI.utils.isWebGLSupported()) {
+    type = "canvas"
 }
 
 PIXI.utils.sayHello(type);
@@ -40,7 +41,8 @@ function loadProgressHandler(loader, resource) {
     //console.log("loading: " + resource.name);
 }
 
-let state;
+let state,
+    time = 0;
 let fixedObjects = [],
     quadros = [];
 
@@ -93,6 +95,15 @@ switch (scenario) {
         ];
         // quadros.forEach(q => q.setTargetPosition(490, 200));
         // quadros[2].someCommand();
+        // quadros[quadros.length - 1].setTaskForNotification(JSON.stringify({
+        //     id: 228,
+        //     action: "move",
+        //     to: {
+        //         x: 350,
+        //         y: 300
+        //     }
+        //
+        // }));
         break;
 }
 
@@ -112,11 +123,12 @@ function setup(loader, resources) {
     app.ticker.add(delta => gameLoop(delta));
 }
 
-function gameLoop(delta){
+function gameLoop(delta) {
     state(delta);
 }
 
 function play(delta) {
+    time++;
     quadros.forEach(quad => quad.doStep());
 }
 
@@ -127,11 +139,29 @@ function stop() {
 let el = document.createElement("input");
 el.type = "checkbox";
 el.id = "check_stop";
-el.addEventListener("click",function() {
+el.addEventListener("click", function () {
     if (this.checked) {
         state = stop;
-    }else {
+    } else {
         state = play;
     }
+});
+document.body.appendChild(el);
+
+el = document.createElement("input");
+el.type = "button";
+el.title = "Add task";
+el.id = "add_task";
+el.addEventListener("click", function () {
+    // quadros.forEach(quad => quad.safeRadius += 10);
+    quadros[quadros.length - 1].setTaskForNotification(JSON.stringify({
+        id: 228,
+        action: "move",
+        to: {
+            x: 500,
+            y: 200
+        }
+
+    }))
 });
 document.body.appendChild(el);

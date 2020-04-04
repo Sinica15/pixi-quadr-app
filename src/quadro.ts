@@ -192,7 +192,7 @@ export class Quadro {
         this.checkNeighbours();
         this.doTasks();
         this.notifyNeighbours();
-        this._velocityCorrection();
+        this.velocityCorrection();
 
         this.bodyQuadro.x += this.speedCoef * this.vx;
         this.bodyQuadro.y += this.speedCoef * this.vy;
@@ -255,7 +255,7 @@ export class Quadro {
         );
     };
 
-    _velocityCorrection() {
+    private velocityCorrection() {
         if (!this.targetPosition) {
             return 0;
         }

@@ -14,7 +14,7 @@ PIXI.utils.sayHello(type);
 //Create a Pixi Application
 let app = new PIXI.Application({
     width: 1000,         // default: 800
-    height: 900,        // default: 600
+    height: 400,        // default: 600
     antialias: true,    // default: false
     transparent: true, // default: false
     resolution: 1       // default: 1
@@ -48,7 +48,7 @@ let state: (delta: any) => void,
 let fixedObjects = [],
     quadros: Quadro[] = [];
 
-let scenario = 4;
+let scenario = 2;
 switch (scenario) {
     case 1:
         quadros = [

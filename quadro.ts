@@ -1,10 +1,9 @@
+// @ts-ignore
 import * as PIXI from "pixi.js";
+// @ts-ignore
 import * as sha256 from "js-sha256";
-import utils from "./utils";
 
-function deepCopy(obj) {
-    return JSON.parse(JSON.stringify(obj));
-}
+import utils from "./utils";
 
 type Position = {
     x: number;
@@ -19,8 +18,8 @@ export class Quadro {
         commonTimer: 0,
     };
     private readonly id_name: string | number;
-    private initPosition: { x: number; y: number };
-    private stuckLocation: {};
+    private initPosition: Position;
+    private stuckLocation: Position;
     private initScale: number;
     private vx: number = 0;
     private vy: number = 0;
@@ -39,8 +38,10 @@ export class Quadro {
     private completedTasks: any[] = [];
     private taskForNotification: any = null;
 
+    // @ts-ignore
     private directionVector: PIXI.Graphics = new PIXI.Graphics();
     private labelScale: number = 0.45;
+    // @ts-ignore
     private labelText: PIXI.Text = new PIXI.Text("", {
         fontFamily: "Arial",
         fontSize: 30,
@@ -73,7 +74,7 @@ export class Quadro {
     * Initialization functions
     * */
 
-    initQuadro(pixiObj, quadros) {
+    initQuadro(pixiObj: any, quadros: Quadro[]) {
         this.quadroSwarm = quadros;
         this.bodyQuadro = pixiObj;
         this.bodyQuadro.x = this.initPosition.x;
@@ -133,8 +134,8 @@ export class Quadro {
         });
         this.taskForNotification = null;
     };
-
-    setTaskForNotification(task) {
+    //todo task type
+    setTaskForNotification(task: string) {
         this.currentTasks.push(JSON.parse(task));
         this.taskForNotification = task;
     };
@@ -176,11 +177,12 @@ export class Quadro {
     private timeIsRunning() {
         this.selfTime++;
         Object.keys(this.timers).forEach(key => {
+            // @ts-ignore
             if (this.timers[key]) this.timers[key]--;
         })
     };
 
-    setCommonTimer(time) {
+    setCommonTimer(time: number) {
         this.timers.commonTimer = time;
     };
 
@@ -327,8 +329,8 @@ export class Quadro {
             return Math.atan(deltaX / deltaY) + correctionAngle;
         }
 
-        function checkCollision(): Quadro | boolean {
-            let res = false;
+        function checkCollision(): Quadro {
+            let res: Quadro = null;
             self.neighbours.forEach(neig => {
                 if (utils.distanceBetween(
                     self.bodyQuadro.x + newVx,

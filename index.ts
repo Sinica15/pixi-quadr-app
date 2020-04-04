@@ -1,3 +1,4 @@
+// @ts-ignore
 import * as PIXI from 'pixi.js';
 import {Quadro} from "./quadro";
 
@@ -12,23 +13,24 @@ PIXI.utils.sayHello(type);
 
 //Create a Pixi Application
 let app = new PIXI.Application({
-    width: 800,         // default: 800
-    height: 350,        // default: 600
+    width: 1000,         // default: 800
+    height: 900,        // default: 600
     antialias: true,    // default: false
     transparent: true, // default: false
     resolution: 1       // default: 1
 });
 
 //Add the canvas that Pixi automatically created for you to the HTML document
+// @ts-ignore
 document.body.appendChild(app.view);
-
+// @ts-ignore
 app.loader
     .add("quadr", "https://cdn1.iconfinder.com/data/icons/gadgets-electronics-and-hardware-1/24/_drone-128.png")
     // .add("quadr", "https://c7.hotpng.com/preview/753/423/691/brown-rat-rodent-rats-and-mice-mouse-squirrel-mouse-thumbnail.jpg")
     .on("progress", loadProgressHandler)
     .load(setup);
 
-function loadProgressHandler(loader, resource) {
+function loadProgressHandler(loader: { progress: string; }, resource: { url: string; }) {
 
     //Display the file `url` currently being loaded
     console.log("loading: " + resource.url);
@@ -41,10 +43,10 @@ function loadProgressHandler(loader, resource) {
     //console.log("loading: " + resource.name);
 }
 
-let state,
+let state: (delta: any) => void,
     time = 0;
 let fixedObjects = [],
-    quadros = [];
+    quadros: Quadro[] = [];
 
 let scenario = 4;
 switch (scenario) {
@@ -108,10 +110,11 @@ switch (scenario) {
 }
 
 //This `setup` function will run when the image has loaded
-function setup(loader, resources) {
+function setup(loader: any, resources: { [x: string]: { texture: any; }; }) {
 
     quadros.forEach(quad => {
         quad.initQuadro(new PIXI.Sprite(resources["quadr"].texture), quadros);
+        // @ts-ignore
         app.stage.addChild(...quad.getPixiObjects());
     });
 
@@ -120,13 +123,15 @@ function setup(loader, resources) {
     // app.renderer.render(app.stage);
 
     state = play;
-    app.ticker.add(delta => gameLoop(delta));
+    // @ts-ignore
+    app.ticker.add((delta: any) => gameLoop(delta));
 }
 
-function gameLoop(delta) {
+function gameLoop(delta: any) {
     state(delta);
 }
 
+// @ts-ignore
 function play(delta) {
     time++;
     quadros.forEach(quad => quad.doStep());

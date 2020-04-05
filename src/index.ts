@@ -26,6 +26,7 @@ document.body.appendChild(app.view);
 // @ts-ignore
 app.loader
     .add("quadr", "https://cdn1.iconfinder.com/data/icons/gadgets-electronics-and-hardware-1/24/_drone-128.png")
+    // .add("quadr", "https://cdn0.iconfinder.com/data/icons/design-61/24/shape-cone-triangle-shapes-design-512.png")
     // .add("quadr", "https://c7.hotpng.com/preview/753/423/691/brown-rat-rodent-rats-and-mice-mouse-squirrel-mouse-thumbnail.jpg")
     .on("progress", loadProgressHandler)
     .load(setup);

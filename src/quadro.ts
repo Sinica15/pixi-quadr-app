@@ -6,11 +6,7 @@ import * as sha256 from "js-sha256";
 import utils from "./utils";
 import moveController from "./moveController";
 
-type Position = {
-    x: number;
-    y: number;
-}
-
+import { Position } from "./types";
 
 export class Quadro {
     private selfTime: number = 0;
@@ -26,7 +22,9 @@ export class Quadro {
     private vy: number = 0;
     //todo add type
     private targetPosition: Position;
+    private targetPositionIntermediate: Position;
     private maxSpeed: number = 13;
+    private maxAngleSpeed: number = Math.PI / 128;
     private speedCoef: number = 0.1;
 
     private readonly safeRadius: number;
@@ -84,6 +82,7 @@ export class Quadro {
             this.initScale,
             0,
             this.maxSpeed,
+            this.maxAngleSpeed,
             pixiObj
         )
     };
@@ -91,8 +90,8 @@ export class Quadro {
     getPixiObjects() {
         this.directionVector.lineStyle(2, 0xFF0000, 1);
         let angle = this.mc.angle + Math.PI / 2;
-        // let endCord = {x: this.maxSpeed * 5 * Math.cos(angle), y: this.maxSpeed * 5 * Math.sin(angle)};
-        let endCord = {x: this.safeRadius * Math.cos(angle), y: this.safeRadius * Math.sin(angle)};
+        let endCord = {x: this.maxSpeed * 15 * Math.cos(angle), y: this.maxSpeed * 15 * Math.sin(angle)};
+        // let endCord = {x: this.safeRadius * Math.cos(angle), y: this.safeRadius * Math.sin(angle)};
         this.directionVector.moveTo(0, 0);
         this.directionVector.drawCircle(0, 0, this.safeRadius);
         this.directionVector.lineTo(endCord.x, endCord.y);
@@ -108,7 +107,7 @@ export class Quadro {
     };
 
     getCurrentPosition() {
-        return {x: this.mc.x, y: this.mc.y}
+        return {x: this.mc?.x, y: this.mc?.y}
     };
 
     setTargetPosition(x: number, y:number) {
@@ -190,14 +189,12 @@ export class Quadro {
     };
 
     doStep() {
-
         this.timeIsRunning();
         this.checkNeighbours();
         this.doTasks();
         this.notifyNeighbours();
         this.moveAndRotate();
         this.moveInfo();
-
     };
 
     moveInfo() {
@@ -210,8 +207,9 @@ export class Quadro {
             this.neighbours.length,
             // this.completedTasks[0],
             this.targetPosition ? "have TP" : '',
+            `ang: ${(utils.deg(this.mc.angle)).toFixed(2)}`,
             ((this.mc.vx == 0 && this.mc.vy == 0) ? "St" : "Mo")];
-        this.labelText.text = labelText.join(' ');
+        this.labelText.text = labelText.join(' | ');
 
         // console.log(this.id_name, this.mc.rotation, this.directionVector.rotation);
         this.directionVector.x = this.mc.x;
@@ -235,7 +233,7 @@ export class Quadro {
             y = x.y;
             x = x.x;
         }
-        return utils.distanceBetween(
+        return utils.distanceBetweenD(
             this.mc.x,
             this.mc.y,
             x, y
@@ -243,8 +241,30 @@ export class Quadro {
     };
 
     private moveAndRotate() {
-        if (this.mc.y > 200 || this.mc.y < 100 ) this.mc.rotate(-0.01);
-        this.mc.moveW(0.05);
+        if (this.targetPosition) {
+            if (this.distanceTo(this.targetPosition) < 10) {
+                this.targetPosition = null;
+                return;
+            } else {
+                const angleToTarPos = utils.aTnBetweenD(this.mc.x, this.mc.y, this.targetPosition.x, this.targetPosition.y) - this.mc.angle;
+                const rotatePower = this.calculateRotatePower(angleToTarPos);
+                console.log(`id : ${this.id_name},\npos: ${utils.deg(angleToTarPos)},\ncur: ${utils.deg(this.mc.angle)},\npwr: ${rotatePower}`);
+                if (angleToTarPos > Math.PI / 32) {
+                    this.mc.rotate(rotatePower);
+                }
+                if (angleToTarPos < -Math.PI / 32) {
+                    this.mc.rotate(-rotatePower);
+                }
+                this.mc.moveW(0.05);
+            }
+        }
+        // if (this.mc.y > 200 || this.mc.y < 100 ) this.mc.rotate(-0.01);
+        // this.mc.moveW(0.05);
     };
+
+    private calculateRotatePower(deltaAngle: number):number {
+        if (Math.abs(deltaAngle) > this.maxAngleSpeed) return 0.001;
+        return 1 - Math.abs(deltaAngle) / this.maxAngleSpeed;
+    }
 
 }

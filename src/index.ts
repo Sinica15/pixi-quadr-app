@@ -67,11 +67,14 @@ switch (scenario) {
     case 2:
         quadros = [
             new Quadro("1a", 200, 200),
-            new Quadro("2a", 220, 100),
-            new Quadro("3a", 370, 170)
+            // new Quadro("2a", 200, 100),
+            // new Quadro("3a", 370, 130),
+            // new Quadro("4a", 370, 270)
         ];
-        quadros[0].setTargetPosition(490, 200);
-        quadros[1].setTargetPosition(490, 100);
+        quadros[0].setTargetPosition(280, 150);
+        // quadros[1].setTargetPosition(200, 150);
+        // quadros[2].setTargetPosition(200, 150);
+        // quadros[3].setTargetPosition(200, 150);
         break;
     case 3:
         quadros = [
@@ -142,23 +145,33 @@ function stop() {
 
 }
 
-let el = document.createElement("input");
-el.type = "checkbox";
-el.id = "check_stop";
-el.addEventListener("click", function () {
-    if (this.checked) {
+const inputChe = document.createElement("input");
+inputChe.type = "checkbox";
+inputChe.id = "check_stop";
+let inputCheStat: boolean = false;
+const stopFn = function () {
+    if (inputCheStat) {
         state = stop;
+        inputCheStat = false;
     } else {
         state = play;
+        inputCheStat = true;
     }
-});
-document.body.appendChild(el);
+};
 
-el = document.createElement("input");
-el.type = "button";
-el.title = "Add task";
-el.id = "add_task";
-el.addEventListener("click", function () {
+document.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') stopFn();
+});
+
+inputChe.addEventListener("click", stopFn);
+
+document.body.appendChild(inputChe);
+
+const inputBtn = document.createElement("input");
+inputBtn.type = "button";
+inputBtn.title = "Add task";
+inputBtn.id = "add_task";
+inputBtn.addEventListener("click", function () {
     // quadros.forEach(quad => quad.safeRadius += 10);
     quadros[quadros.length - 1].setTaskForNotification(JSON.stringify({
         id: 228,
@@ -170,4 +183,12 @@ el.addEventListener("click", function () {
 
     }))
 });
-document.body.appendChild(el);
+document.body.appendChild(inputBtn);
+
+// const el = document.createElement("div");
+// quadros.forEach(quad => {
+//     const eli = document.createElement("div");
+//     eli.innerText = JSON.stringify(quad.getCurrentPosition());
+//     el.appendChild(eli);
+// });
+// document.body.appendChild(el);
